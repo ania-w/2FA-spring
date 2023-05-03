@@ -7,6 +7,7 @@ target/
 mvnw
 mvnw.cmd
 .mvn
+**/src/main/resources/keystore/
 
 ### STS ###
 .apt_generated
