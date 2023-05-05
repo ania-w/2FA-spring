@@ -44,12 +44,14 @@ public class AuthController {
 
 
     @GetMapping("/login")
-    public ModelAndView loginViewPage (HttpServletResponse response) throws IOException {
+    public ModelAndView loginViewPage (HttpServletResponse response,@RequestParam(required = false) String message) throws IOException {
 
         redirectIfUserAlreadyLoggedIn(response);
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
+        modelAndView.addObject("message",message);
+
         return modelAndView;
     }
 
@@ -77,12 +79,21 @@ public class AuthController {
                 .body(jwtToken.getJwtToken());
     }
 
+    @GetMapping("/register-user")
+    public ModelAndView registerUserViewPage (HttpServletResponse response) throws IOException {
+
+        redirectIfUserAlreadyLoggedIn(response);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("register_user");
+        return modelAndView;
+    }
+
     @PostMapping("/register-user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateAccountRequest request) {
 
         User user = new User(request.getUsername(), encoder.encode(request.getPassword()));
 
-        System.out.println(encoder.encode(request.getPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok("User " + request.getUsername() + " account created.");

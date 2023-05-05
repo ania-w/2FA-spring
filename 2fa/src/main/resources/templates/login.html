@@ -7,6 +7,10 @@
     <script src="/js/login.js"></script>
 </head>
 <body>
+<div>
+    <input type="hidden" id="messageParam" th:value='${message}'/>
+    <span class="message" id="message"></span>
+</div>
 <div class="header-container">
     <h1>Please Log In</h1>
 </div>
@@ -21,5 +25,8 @@
     </div>
     <input type="submit" value="Log In"/>
 </form>
+<div class="new-account-link-container">
+    <a class="new-account-link" href="/api/auth/register-user">Create new account</a>
+</div>
 </body>
 </html>

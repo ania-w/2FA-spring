@@ -1,4 +1,14 @@
 $(document).ready(function() {
+
+console.log(messageParam);
+
+   var messageParam = $('#messageParam').val();
+
+   var message = document.getElementById("message");
+
+   if(messageParam != null)
+       message.innerHTML = messageParam;
+
   $('#loginForm').submit(function(event) {
     event.preventDefault();
 
