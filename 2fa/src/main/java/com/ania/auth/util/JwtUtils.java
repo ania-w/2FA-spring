@@ -15,6 +15,7 @@ import org.springframework.web.util.WebUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 
 @Component
@@ -24,9 +25,9 @@ public class JwtUtils {
     private String jwtSecret;
 
     @Value("${ania.app.jwtCookieName}")
-    private String jwtCookie;
+    private String jwtCookieName;
 
-    private final static Long EXPIRATION_TIME = 12 * 60 * 60L;
+    private final static Long EXPIRATION_TIME = 60 * 60 * 1000L;
 
     public JwtToken generateJwtToken(UserDetailsImpl userDetails) {
 
@@ -42,19 +43,24 @@ public class JwtUtils {
         return new JwtToken(jwt, userDetails.getUsername(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expirationDate));
     }
 
-    public JwtToken getJwtFromCookies(ServletRequest request) {
-        Cookie cookie = WebUtils.getCookie((HttpServletRequest) request, jwtCookie);
+    public Optional<JwtToken> getJwtFromCookies(ServletRequest request) {
+        Cookie cookie = WebUtils.getCookie((HttpServletRequest) request, jwtCookieName);
 
-        String jwtToken = cookie.getValue();
-        String username = getUserNameFromJwtToken(jwtToken);
-        String expirationDate = getExpirationDateFromJwtToken(jwtToken);
+        if(cookie != null) {
+            String jwtToken = cookie.getValue();
+            String username = getUserNameFromJwtToken(jwtToken);
+            String expirationDate = getExpirationDateFromJwtToken(jwtToken);
 
-        return new JwtToken(jwtToken, username, expirationDate);
+            return Optional.of(new JwtToken(jwtToken, username, expirationDate));
+        }
+
+        return Optional.empty();
+
     }
 
     public ResponseCookie generateJwtCookie(JwtToken jwtToken) {
 
-        return ResponseCookie.from(jwtCookie, jwtToken.getJwtToken())
+        return ResponseCookie.from(jwtCookieName, jwtToken.getJwtToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/api")
@@ -65,7 +71,7 @@ public class JwtUtils {
 
     public Cookie clearJwtCookie() {
 
-        Cookie cookie = new Cookie(jwtCookie, "");
+        Cookie cookie = new Cookie(jwtCookieName, "");
         cookie.setHttpOnly(true);
         cookie.setPath("/api");
         cookie.setSecure(true);

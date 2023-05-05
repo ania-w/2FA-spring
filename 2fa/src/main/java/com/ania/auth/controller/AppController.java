@@ -26,7 +26,7 @@ public class AppController {
     @GetMapping("/index")
     public String index(Model model, HttpServletRequest request) {
 
-        JwtToken jwtToken = jwtUtils.getJwtFromCookies(request);
+        JwtToken jwtToken = jwtUtils.getJwtFromCookies(request).orElseThrow();
 
         model.addAttribute("username", jwtToken.getUsername());
         model.addAttribute("jwtToken", jwtToken.getJwtToken());
