@@ -54,7 +54,8 @@ public class AuthController {
     }
 
     private void redirectIfUserAlreadyLoggedIn(HttpServletResponse response) throws IOException {
-        if(SecurityContextHolder.getContext().getAuthentication().isAuthenticated())
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null && authentication.isAuthenticated())
             response.sendRedirect("/api/content/index");
     }
 
