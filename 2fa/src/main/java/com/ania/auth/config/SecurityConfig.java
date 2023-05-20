@@ -3,7 +3,6 @@ package com.ania.auth.config;
 import com.ania.auth.service.AuthTokenFilter;
 import com.ania.auth.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,13 +59,13 @@ public class SecurityConfig {
                     .securityMatcher("/api/content/**")
                     .authorizeHttpRequests((requests) -> requests.requestMatchers("/api/auth/**").permitAll()
                                             .anyRequest().authenticated())
-                    .formLogin(form -> form.loginPage("/api/auth/login").successForwardUrl("/api/content/index").permitAll())
                     .cors().and().csrf().disable()
-                    .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/api/auth/login")).and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                             .addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class)
                     .headers().frameOptions().sameOrigin().and()
-                    .authenticationProvider(authenticationProvider());
+                    .authenticationProvider(authenticationProvider())
+                    .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/api/auth/login"));
+
 
             return http.build();
         }

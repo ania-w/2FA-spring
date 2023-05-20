@@ -23,7 +23,7 @@ console.log(messageParam);
       contentType: 'application/json',
       data: formData,
       success: function() {
-        window.location.href = '/api/content/index';
+        window.location.href = '/api/auth/second-factor';
       },
       error: function() {
         alert('Login failed');

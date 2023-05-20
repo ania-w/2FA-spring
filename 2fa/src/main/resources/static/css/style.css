@@ -112,6 +112,7 @@ h1 {
 }
 
 .login-form,
+.otp-form,
 .register-form {
   width: 300px;
   margin: 0 auto;

@@ -1,12 +1,15 @@
 package com.ania.auth.controller;
 
 import com.ania.auth.model.JwtToken;
+import com.ania.auth.model.TwoFactorMethod;
 import com.ania.auth.model.User;
 import com.ania.auth.model.communication.request.CreateAccountRequest;
 import com.ania.auth.model.communication.request.LoginRequest;
+import com.ania.auth.model.communication.request.OtpRequest;
 import com.ania.auth.repository.UserRepository;
-import com.ania.auth.service.UserDetailsImpl;
 import com.ania.auth.util.JwtUtils;
+import com.ania.auth.util.TotpUtils;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,6 +45,9 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    TotpUtils totpUtils;
+
 
     @GetMapping("/login")
     public ModelAndView loginViewPage (HttpServletResponse response,@RequestParam(required = false) String message) throws IOException {
@@ -55,48 +61,114 @@ public class AuthController {
         return modelAndView;
     }
 
+    @GetMapping("/get-otp")
+    public Integer otp(String secretKey) {
+        return totpUtils.getTotpPassword(secretKey);
+    }
+
+    @GetMapping("/get-users")
+    public void users(String secret) {
+        userRepository.findAll().forEach(System.out::println);
+    }
+
     private void redirectIfUserAlreadyLoggedIn(HttpServletResponse response) throws IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication != null && authentication.isAuthenticated())
             response.sendRedirect("/api/content/index");
     }
 
+    private void redirectIfNotPreAuthenticated(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String jwtToken = jwtUtils.getJwtTokenFromRequest(request);
+        if(!jwtUtils.isPreAuthenticated(jwtToken))
+            response.sendRedirect("/api/auth/login");
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        JwtToken jwtToken = jwtUtils.generateJwtToken(userDetails);
+        JwtToken jwtToken = jwtUtils.generatePreAuthJwtToken(username);
 
         ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString())
-                .body(jwtToken.getJwtToken());
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(jwtToken.getJwtToken());
+
+    }
+
+    @GetMapping("/otp")
+    public ModelAndView otpViewPage() {
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("otp");
+
+        return modelAndView;
+    }
+
+    @GetMapping("/second-factor")
+    public void secondFactor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        redirectIfUserAlreadyLoggedIn(response);
+
+        redirectIfNotPreAuthenticated(request, response);
+
+        String username = jwtUtils.getUserNameFromJwtToken(request);
+
+        String twoFactorMethod = userRepository.findByUsername(username).get().getTwoFactorMethod();
+
+        switch (twoFactorMethod){
+            case TwoFactorMethod.OTP ->  response.sendRedirect("/api/auth/otp");
+            case TwoFactorMethod.BIOMETRICS -> response.sendRedirect("/api/auth/biometrics");
+            case TwoFactorMethod.NONE -> response.sendRedirect("/api/content/index");
+        }
+    }
+
+
+    @PostMapping("/otp")
+    private ResponseEntity<?> authenticateWithOTP(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody OtpRequest otpRequest) throws IOException {
+
+        redirectIfUserAlreadyLoggedIn(response);
+        redirectIfNotPreAuthenticated(request, response);
+
+        String username = jwtUtils.getUserNameFromJwtToken(request);
+
+        String secret = userRepository.findByUsername(username).get().getSecret();
+
+        totpUtils.validateTotp(secret, otpRequest.getOtp());
+
+        JwtToken jwtToken = jwtUtils.generateJwtToken(username);
+
+        ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(jwtToken.getJwtToken());
     }
 
     @GetMapping("/register-user")
     public ModelAndView registerUserViewPage (HttpServletResponse response) throws IOException {
 
-        redirectIfUserAlreadyLoggedIn(response);
+        redirectIfUserAlreadyLoggedIn(response); // TODO: maybe logout?
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("register_user");
+
         return modelAndView;
     }
 
     @PostMapping("/register-user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateAccountRequest request) {
 
-        User user = new User(request.getUsername(), encoder.encode(request.getPassword()));
+        String secret =totpUtils.getKey();
+
+        String twoFactorMethod = TwoFactorMethod.OTP;//TwoFactorMethod.valueOf(request.getTwoFactorMethod());
+
+        User user = new User(request.getUsername(), encoder.encode(request.getPassword()), request.getEmail(), secret, twoFactorMethod);
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("User " + request.getUsername() + " account created.");
+        return ResponseEntity.ok("User " + request.getUsername() + " account created with secret: " + secret);
     }
 
 
@@ -109,4 +181,5 @@ public class AuthController {
 
         response.sendRedirect("/api/auth/login");
     }
+
 }
