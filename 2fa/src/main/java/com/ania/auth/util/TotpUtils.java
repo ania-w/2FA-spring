@@ -6,12 +6,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-@Component
-public class TotpUtils {
+public final class TotpUtils {
 
     private static final GoogleAuthenticator gAuth = new GoogleAuthenticator();
 
-    public void validateTotp(String secretKey, Integer otp) {
+    public static void validateTotp(String secretKey, Integer otp) {
         boolean isCodeValid = gAuth.authorize(secretKey, otp);
 
         if (!isCodeValid) {
@@ -20,11 +19,11 @@ public class TotpUtils {
         }
     }
 
-    public Integer getTotpPassword(String secretKey) {
+    public static Integer getTotpPassword(String secretKey) {
         return gAuth.getTotpPassword(secretKey);
     }
 
-    public String getKey() {
+    public static String getKey() {
         final GoogleAuthenticatorKey key = gAuth.createCredentials();
         return key.getKey();
     }

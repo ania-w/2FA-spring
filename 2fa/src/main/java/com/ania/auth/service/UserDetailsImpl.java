@@ -3,12 +3,14 @@ package com.ania.auth.service;
 import com.ania.auth.model.TwoFactorMethod;
 import com.ania.auth.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Objects;
 
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
@@ -24,15 +26,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private String twoFactorMethod;
 
-
-    public UserDetailsImpl(Long id, String username, String password, String email, String secret, String twoFactorMethod) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.secret = secret;
-        this.twoFactorMethod = twoFactorMethod;
-    }
+    private Boolean twoFactorEnabled;
 
     public static UserDetailsImpl build(User user) {
 
@@ -42,7 +36,8 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 user.getEmail(),
                 user.getSecret(),
-                user.getTwoFactorMethod());
+                user.getTwoFactorMethod(),
+                user.getTwoFactorEnabled());
     }
 
 
@@ -95,6 +90,10 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getTwoFactorMethod() {
         return twoFactorMethod;
+    }
+
+    public Boolean getTwoFactorEnabled() {
+        return twoFactorEnabled;
     }
 
     @Override

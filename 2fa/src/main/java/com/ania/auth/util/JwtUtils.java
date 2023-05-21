@@ -1,7 +1,7 @@
 package com.ania.auth.util;
 
 import com.ania.auth.model.JwtToken;
-import com.ania.auth.service.UserDetailsImpl;
+import com.ania.auth.model.Roles;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,8 +10,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
@@ -19,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -32,20 +29,16 @@ public class JwtUtils {
     private String jwtCookieName;
 
     private final static Long EXPIRATION_TIME = 60 * 60 * 1000L;
-    private final static Long PRE_AUTH_EXPIRATION_TIME = 2 * 60 * 1000L;
+    private final static Long TEMP_EXPIRATION_TIME = 2 * 60 * 1000L;
 
 
     public JwtToken generateJwtToken(String username) {
 
         Date expirationDate = new Date((new Date()).getTime() + EXPIRATION_TIME);
 
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("ROLE_PRE_AUTHENTICATED", false);
-
         String jwt = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .addClaims(claims)
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
@@ -53,25 +46,21 @@ public class JwtUtils {
         return new JwtToken(jwt, username, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expirationDate));
     }
 
-    public Boolean isPreAuthenticated(JwtToken jwtToken){
-        return isPreAuthenticated(jwtToken.getJwtToken());
-    }
-
-    public Boolean isPreAuthenticated(String jwtToken){
+    public Boolean hasRole(String jwtToken, Roles role){
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(jwtToken)
                 .getBody();
 
-        return claims.get("ROLE_PRE_AUTHENTICATED", Boolean.class);
+        return claims.get(role.name(), Boolean.class) != null;
     }
 
-    public JwtToken generatePreAuthJwtToken(String username) {
+    public JwtToken generateTempJwtToken(String username, Roles role) {
 
-        Date expirationDate = new Date((new Date()).getTime() + PRE_AUTH_EXPIRATION_TIME);
+        Date expirationDate = new Date((new Date()).getTime() + TEMP_EXPIRATION_TIME);
 
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("ROLE_PRE_AUTHENTICATED", true);
+        claims.put(role.name(), true);
 
         String jwt = Jwts.builder()
                 .setSubject(username)
@@ -140,6 +129,13 @@ public class JwtUtils {
         return Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(jwtCookieName)).findFirst().get().getValue();
     }
 
+    public Boolean isJwtTokenPresent(HttpServletRequest request){
+        if(request.getCookies() == null)
+            return false;
+
+        return Arrays.stream(request.getCookies()).anyMatch(c -> c.getName().equals(jwtCookieName));
+    }
+
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
@@ -148,5 +144,9 @@ public class JwtUtils {
             return false;
         }
         return true;
+    }
+
+    public Boolean isTemp(String jwtToken) {
+        return hasRole(jwtToken,Roles.PRE_AUTHENTICATED) || hasRole(jwtToken,Roles.PRE_REGISTERED);
     }
 }

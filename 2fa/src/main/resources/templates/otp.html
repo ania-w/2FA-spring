@@ -9,13 +9,13 @@
 </head>
 <body>
 <div class="header-container">
-    <h5>Generate OTP in your mobile application and enter it below</h5>
+    <h4>Generate OTP in your mobile application and enter it below</h4>
 </div>
 <form class="otp-form" th:action="@{/api/auth/login}" method="post" id="otpForm">
-    <label for="otp">Enter OTP:</label>
     <input type="number" id="otp" name="otp" required>
-
+<div>
     <input type="submit" value="Send"/>
+</div>
 
 </form>
 </body>

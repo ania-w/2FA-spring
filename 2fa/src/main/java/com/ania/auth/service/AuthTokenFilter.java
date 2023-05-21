@@ -2,9 +2,7 @@ package com.ania.auth.service;
 
 import com.ania.auth.model.JwtToken;
 import com.ania.auth.util.JwtUtils;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,9 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -26,8 +22,6 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -38,7 +32,7 @@ public class AuthTokenFilter extends GenericFilterBean {
     private JwtUtils jwtUtils;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private UserService userService;
 
 
     @Override
@@ -54,9 +48,9 @@ public class AuthTokenFilter extends GenericFilterBean {
 
                 JwtToken jwtToken = optionalJwt.get();
 
-                Boolean isPreAuthenticated = jwtUtils.isPreAuthenticated(jwtToken);
+                Boolean isTemp = jwtUtils.isTemp(jwtToken.getJwtToken());
 
-                if (jwtUtils.validateJwtToken(jwtToken.getJwtToken()) && !isPreAuthenticated) {
+                if (jwtUtils.validateJwtToken(jwtToken.getJwtToken()) && !isTemp) {
                     setAuthentication(httpRequest, jwtToken);
                 } else {
                     SecurityContextHolder.clearContext();
@@ -73,7 +67,7 @@ public class AuthTokenFilter extends GenericFilterBean {
     private void setAuthentication(HttpServletRequest request, JwtToken jwtToken) {
         String username = jwtToken.getUsername();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = UserDetailsImpl.build(userService.loadUserByUsername(username));
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
