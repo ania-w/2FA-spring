@@ -15,14 +15,48 @@
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" required><br><br>
 
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required><br><br>
+
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required><br><br>
 
     <label for="confirmPassword">Confirm Password:</label>
     <input type="password" id="confirmPassword" name="confirmPassword" required><br><br>
 
-    <input type="submit" value="Create new account" />
+<div style="align-items: left; text-align: left; justify-content:left; margin-left:40px;">
+
+    <label class="auth-label-form" for="twoFactorMethod">Select Authentication Method:</label>
+
+    <input type="radio" id="otp" name="twoFactorMethod" value="OTP" required checked>
+    <label class="auth-label" for="otp">OTP Password</label><br/>
+
+    <input type="radio" id="biometrics" name="twoFactorMethod" value="BIOMETRICS" required>
+    <label class="auth-label" for="biometrics">Biometrics</label><br/>
+
+    <input type="radio" id="none" name="twoFactorMethod" value="NONE" required>
+    <label class="auth-label" for="none">None</label><br/>
+
+</div>
+        <input type="submit" style="margin-top:20px;" id="register-submit" value="Create new account" />
 </form>
+
+<div id="qrCodeContainer" style="display:none;" class="qr-container">
+
+    <label class="auth-label" style="color:green; margin-bottom:20px;">User account created.</label><br/>
+
+    <label class="auth-label" for="qrCodeImage">Scan the QR code with your mobile device or send an email to set up the authentication flow.</label>
+    <img id="qrCodeImage" alt="QR Code" />
+    <div>
+        <input id="sendEmail" type="button" value="Send secret via email">
+    </div>
+    <br/>
+    <div>
+        <label class="auth-label" for="activate2fa">Click the button below after you have scanned QR code or entered it manually.</label>
+        <input id="activate2fa" type="button" value="Activate two-factor authentication">
+    </div>
+</div>
+<br/>
 <div class="error-register" id="message"></div>
 </body>
 </html>

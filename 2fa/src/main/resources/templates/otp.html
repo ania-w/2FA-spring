@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<title>OTP Verification</title>
+<head>
+        <title>Log in</title>
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="/js/otp.js"></script>
+</head>
+<body>
+<div class="header-container">
+    <h4>Generate OTP in your mobile application and enter it below</h4>
+</div>
+<form class="otp-form" th:action="@{/api/auth/login}" method="post" id="otpForm">
+    <input type="number" id="otp" name="otp" required>
+<div>
+    <input type="submit" value="Send"/>
+</div>
+
+</form>
+</body>
+</html>

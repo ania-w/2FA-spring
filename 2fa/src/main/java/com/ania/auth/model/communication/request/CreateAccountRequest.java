@@ -2,9 +2,9 @@ package com.ania.auth.model.communication.request;
 
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Set;
 
 @Data
 public class CreateAccountRequest {
@@ -15,4 +15,13 @@ public class CreateAccountRequest {
     @NotBlank
     @Size(min = 5, max = 30)
     private String password;
+
+    @NotBlank
+    @Email
+    @Size(min = 5, max = 100)
+    private String email;
+
+    @NotBlank
+    private String twoFactorMethod;
+
 }

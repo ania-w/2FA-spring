@@ -1,13 +1,16 @@
 package com.ania.auth.service;
 
+import com.ania.auth.model.TwoFactorMethod;
 import com.ania.auth.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Objects;
 
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
@@ -17,19 +20,24 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
+    private String email;
 
-    public UserDetailsImpl(Long id, String username, String password) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-    }
+    private String secret;
+
+    private String twoFactorMethod;
+
+    private Boolean twoFactorEnabled;
 
     public static UserDetailsImpl build(User user) {
 
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
-                user.getPassword());
+                user.getPassword(),
+                user.getEmail(),
+                user.getSecret(),
+                user.getTwoFactorMethod(),
+                user.getTwoFactorEnabled());
     }
 
 
@@ -70,6 +78,22 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public String getTwoFactorMethod() {
+        return twoFactorMethod;
+    }
+
+    public Boolean getTwoFactorEnabled() {
+        return twoFactorEnabled;
     }
 
     @Override

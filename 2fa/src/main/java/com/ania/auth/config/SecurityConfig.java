@@ -1,9 +1,8 @@
 package com.ania.auth.config;
 
 import com.ania.auth.service.AuthTokenFilter;
-import com.ania.auth.service.UserDetailsServiceImpl;
+import com.ania.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
         @Autowired
-        UserDetailsServiceImpl userDetailsService;
+        UserService userService;
 
         @Autowired
         AuthTokenFilter tokenFilter;
@@ -35,7 +34,7 @@ public class SecurityConfig {
         public DaoAuthenticationProvider authenticationProvider() {
             DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-            authProvider.setUserDetailsService(userDetailsService);
+            authProvider.setUserDetailsService(userService);
             authProvider.setPasswordEncoder(passwordEncoder());
 
             return authProvider;
@@ -60,13 +59,13 @@ public class SecurityConfig {
                     .securityMatcher("/api/content/**")
                     .authorizeHttpRequests((requests) -> requests.requestMatchers("/api/auth/**").permitAll()
                                             .anyRequest().authenticated())
-                    .formLogin(form -> form.loginPage("/api/auth/login").successForwardUrl("/api/content/index").permitAll())
                     .cors().and().csrf().disable()
-                    .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/api/auth/login")).and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                             .addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class)
                     .headers().frameOptions().sameOrigin().and()
-                    .authenticationProvider(authenticationProvider());
+                    .authenticationProvider(authenticationProvider())
+                    .exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/api/auth/login"));
+
 
             return http.build();
         }

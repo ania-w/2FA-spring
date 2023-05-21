@@ -12,6 +12,22 @@ label, p {
   display: flex;
 }
 
+.auth-label-form,
+.auth-label {
+  color: #3F0070;
+    margin-left: 5px;
+    line-height: 32px;
+}
+
+.auth-label-form {
+    margin-left: 15px;
+  font-weight: 700;
+}
+
+.auth-label {
+  display: inline;
+}
+
 h1 {
   width: 360px;
   text-align: center;
@@ -19,6 +35,14 @@ h1 {
   font: inherit;
   padding-top: 20px;
   font-size: 36px;
+  padding-bottom: 20px;
+}
+
+h4 {
+  width: 360px;
+  text-align: center;
+  color: #3F0070;
+  padding-top: 20px;
   padding-bottom: 20px;
 }
 
@@ -37,6 +61,16 @@ h1 {
   margin-bottom: 20px;
   margin-top: 20px;
   box-sizing: border-box;
+}
+
+.qr-container{
+  width: 300px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px #888888;
+  text-align: center;
 }
 
 .token {
@@ -112,8 +146,19 @@ h1 {
 }
 
 .login-form,
+.otp-form,
 .register-form {
   width: 300px;
+  margin: 0 auto;
+  background-color: #FFFFFF;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px #888888;
+  text-align: center;
+}
+
+.register-form {
+  width: 400px;
   margin: 0 auto;
   background-color: #FFFFFF;
   padding: 30px;
@@ -161,7 +206,18 @@ input[type="password"] {
   box-shadow: 0px 0px 5px #754E8A;
 }
 
-input[type="submit"] {
+
+input[type="radio"] {
+  position: relative;
+  margin: 5px;
+  margin-left: 25px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="submit"],
+ input[type="button"]{
   background-color: #B03B10;
   color: #FFFFFF;
   border: none;
