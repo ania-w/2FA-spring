@@ -1,7 +1,7 @@
 package com.ania.auth.config;
 
 import com.ania.auth.service.AuthTokenFilter;
-import com.ania.auth.service.UserDetailsServiceImpl;
+import com.ania.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
         @Autowired
-        UserDetailsServiceImpl userDetailsService;
+        UserService userService;
 
         @Autowired
         AuthTokenFilter tokenFilter;
@@ -34,7 +34,7 @@ public class SecurityConfig {
         public DaoAuthenticationProvider authenticationProvider() {
             DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-            authProvider.setUserDetailsService(userDetailsService);
+            authProvider.setUserDetailsService(userService);
             authProvider.setPasswordEncoder(passwordEncoder());
 
             return authProvider;

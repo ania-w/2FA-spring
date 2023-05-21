@@ -67,7 +67,7 @@ public class AuthTokenFilter extends GenericFilterBean {
     private void setAuthentication(HttpServletRequest request, JwtToken jwtToken) {
         String username = jwtToken.getUsername();
 
-        UserDetails userDetails = UserDetailsImpl.build(userService.loadUserByUsername(username));
+        UserDetails userDetails = userService.loadUserByUsername(username);
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 

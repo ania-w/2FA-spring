@@ -136,9 +136,9 @@ public class AuthController {
         if(!redirectIfUserAlreadyLoggedIn(response) && !redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
 
             String username = jwtUtils.getUserNameFromJwtToken(request);
-            Boolean is2faEnabled = userService.loadUserByUsername(username).getTwoFactorEnabled();
+            Boolean is2faEnabled = userService.findUserByUsername(username).getTwoFactorEnabled();
 
-            String twoFactorMethod = userService.loadUserByUsername(username).getTwoFactorMethod();
+            String twoFactorMethod = userService.findUserByUsername(username).getTwoFactorMethod();
 
             switch (twoFactorMethod) {
                 case TwoFactorMethod.OTP -> response.sendRedirect("/api/auth/otp");
@@ -165,7 +165,7 @@ public class AuthController {
 
             String username = jwtUtils.getUserNameFromJwtToken(request);
 
-            String secret = userService.loadUserByUsername(username).getSecret();
+            String secret = userService.findUserByUsername(username).getSecret();
 
             TotpUtils.validateTotp(secret, otpRequest.getOtp());
 
@@ -192,7 +192,7 @@ public class AuthController {
     @PostMapping("/send-email")
     public ResponseEntity<?> sendEmail(@Valid @RequestBody SendEmailRequest sendEmailRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if(!redirectIfNotAuthorized(request, response, Roles.PRE_REGISTERED)) {
-            mailService.sendSecretViaEmail(sendEmailRequest.getEmail(), userService.loadUserByUsername(sendEmailRequest.getUsername()).getSecret());
+            mailService.sendSecretViaEmail(sendEmailRequest.getEmail(), userService.findUserByUsername(sendEmailRequest.getUsername()).getSecret());
         }
         return ResponseEntity.ok().build();
     }

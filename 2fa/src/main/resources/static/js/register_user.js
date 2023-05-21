@@ -44,9 +44,9 @@ $(document).ready(function() {
     formData.append("email", email);
     formData.append("twoFactorMethod", authenticationMethod);
 
-    $('#registerForm').css("display","none");
-
     if(authenticationMethod=="NONE"){
+        console.log("none");
+
 
     $.ajax({
           url: '/api/auth/register-user',
@@ -64,6 +64,7 @@ $(document).ready(function() {
         });
 
     } else if(authenticationMethod=="OTP"){
+    console.log("otp");
 
                $.ajax({
                      url: '/api/auth/register-user',
@@ -76,6 +77,7 @@ $(document).ready(function() {
                                  var message = "User account created successfully."
                                  $('#qrCodeImage').attr('src', 'data:image/png;base64,' + qrCodeData);
                                  $('#qrCodeContainer').css("display","block");
+                                 $('#registerForm').css("display","none");
                                  $('#activate2fa').click(function(event) {
                                      const form = new FormData();
                                      form.append("username", username);

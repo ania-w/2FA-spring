@@ -10,12 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService{
     @Autowired
     UserRepository userRepository;
 
     @Transactional
-    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return UserDetailsImpl.build(findUserByUsername(username));
+    }
+
+    @Transactional
+    public User findUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User " + username + "not found in the system."));
     }
@@ -37,5 +43,6 @@ public class UserService {
         if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new RuntimeException("Username already taken");
         }
+        userRepository.save(user);
     }
 }
