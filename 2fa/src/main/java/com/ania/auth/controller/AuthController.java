@@ -2,7 +2,6 @@ package com.ania.auth.controller;
 
 import com.ania.auth.model.JwtToken;
 import com.ania.auth.model.Roles;
-import com.ania.auth.model.TwoFactorMethod;
 import com.ania.auth.model.User;
 import com.ania.auth.model.communication.request.CreateAccountRequest;
 import com.ania.auth.model.communication.request.CredentialsAuthRequest;
@@ -12,7 +11,6 @@ import com.ania.auth.model.communication.response.CreateAccountResponse;
 import com.ania.auth.service.MailService;
 import com.ania.auth.service.UserService;
 import com.ania.auth.util.JwtUtils;
-import com.ania.auth.util.QrCodeUtil;
 import com.ania.auth.util.TotpUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -91,7 +89,7 @@ public class AuthController {
         if(jwtUtils.isJwtTokenPresent(request)) {
 
             String jwtToken = jwtUtils.getJwtTokenFromRequest(request);
-            if (!jwtUtils.hasRole(jwtToken,role)) {
+            if (!jwtUtils.validateJwtToken(jwtToken) || !jwtUtils.hasRole(jwtToken,role)) {
                 response.sendRedirect("/api/auth/login");
                 return true;
             }
@@ -118,34 +116,15 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(jwtToken.getJwtToken());
     }
 
-    @GetMapping("/otp")
-    public ModelAndView otpViewPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        redirectIfUserAlreadyLoggedIn(response);
-        redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED);
-
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("otp");
-
-        return modelAndView;
-    }
-
-    @GetMapping("/choose-second-factor")
-    public void secondFactor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping("/second-factor")
+    public ModelAndView secondFactorAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         if(!redirectIfUserAlreadyLoggedIn(response) && !redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
 
             String username = jwtUtils.getUserNameFromJwtToken(request);
             Boolean is2faEnabled = userService.findUserByUsername(username).getTwoFactorEnabled();
 
-            String twoFactorMethod = userService.findUserByUsername(username).getTwoFactorMethod();
-
-            switch (twoFactorMethod) {
-                case TwoFactorMethod.OTP -> response.sendRedirect("/api/auth/otp");
-                case TwoFactorMethod.BIOMETRICS -> response.sendRedirect("/api/auth/biometrics");
-            }
-
-            if (twoFactorMethod.equals(TwoFactorMethod.NONE) && !is2faEnabled) {
+            if (!is2faEnabled) {
                 JwtToken jwtToken = jwtUtils.generateJwtToken(username);
 
                 ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
@@ -155,6 +134,10 @@ public class AuthController {
             }
         }
 
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("second_factor");
+
+        return modelAndView;
     }
 
 
@@ -200,23 +183,15 @@ public class AuthController {
     @PostMapping("/register-user")
     public ResponseEntity<?> registerUser(@Valid @RequestBody CreateAccountRequest request) throws Exception {
 
-        String twoFactorMethod = request.getTwoFactorMethod();
-
         String secret = null;
         ResponseEntity<?> response = null;
 
-        if(twoFactorMethod.equals(TwoFactorMethod.OTP)) {
-            secret = TotpUtils.getKey();
-            JwtToken jwtToken = jwtUtils.generateTempJwtToken(request.getUsername(), Roles.PRE_REGISTERED);
-            ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
-            response = ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(new CreateAccountResponse(generateQR(secret)));
-        } else if(twoFactorMethod.equals(TwoFactorMethod.BIOMETRICS)) {
-            //TODO
-        } else {
-            response = ResponseEntity.ok().build();
-        }
+        secret = TotpUtils.getKey();
+        JwtToken jwtToken = jwtUtils.generateTempJwtToken(request.getUsername(), Roles.PRE_REGISTERED);
+        ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
+        response = ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(new CreateAccountResponse(generateQR(secret)));
 
-        User user = new User(request.getUsername(), encoder.encode(request.getPassword()), request.getEmail(), secret, twoFactorMethod, false);
+        User user = new User(request.getUsername(), encoder.encode(request.getPassword()), request.getEmail(), secret, false);
 
         userService.save(user);
 

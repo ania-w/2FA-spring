@@ -29,16 +29,13 @@ public class User {
 
     private String secret;
 
-    private String twoFactorMethod;
-
     private Boolean twoFactorEnabled;
 
-    public User(String username, String password, String email, String secret, String twoFactorMethod, Boolean twoFactorEnabled) {
+    public User(String username, String password, String email, String secret, Boolean twoFactorEnabled) {
         this.email = email;
         this.username = username;
         this.password = password;
         this.secret = secret;
-        this.twoFactorMethod = twoFactorMethod;
         this.twoFactorEnabled = twoFactorEnabled;
     }
 }

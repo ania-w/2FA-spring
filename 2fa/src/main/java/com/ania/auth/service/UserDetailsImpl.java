@@ -1,6 +1,5 @@
 package com.ania.auth.service;
 
-import com.ania.auth.model.TwoFactorMethod;
 import com.ania.auth.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -24,8 +23,6 @@ public class UserDetailsImpl implements UserDetails {
 
     private String secret;
 
-    private String twoFactorMethod;
-
     private Boolean twoFactorEnabled;
 
     public static UserDetailsImpl build(User user) {
@@ -36,7 +33,6 @@ public class UserDetailsImpl implements UserDetails {
                 user.getPassword(),
                 user.getEmail(),
                 user.getSecret(),
-                user.getTwoFactorMethod(),
                 user.getTwoFactorEnabled());
     }
 
@@ -86,10 +82,6 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getSecret() {
         return secret;
-    }
-
-    public String getTwoFactorMethod() {
-        return twoFactorMethod;
     }
 
     public Boolean getTwoFactorEnabled() {
