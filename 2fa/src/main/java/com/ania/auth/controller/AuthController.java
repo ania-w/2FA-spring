@@ -201,6 +201,9 @@ public class AuthController {
     @PostMapping("/enable-2fa")
     public void enable2Fa(@Valid @RequestBody CreateAccountRequest accountRequest,HttpServletResponse response, HttpServletRequest request) throws Exception {
         redirectIfNotAuthorized(request, response, Roles.PRE_REGISTERED);
+        User user = userService.findUserByUsername(accountRequest.getUsername());
+        user.setTwoFactorEnabled(true);
+        userService.save(user);
 
     }
 

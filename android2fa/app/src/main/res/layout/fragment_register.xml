@@ -4,50 +4,78 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FDFDFD"
+    android:backgroundTint="@color/white"
     tools:context=".RegisterFragment">
 
+    <Button
+        android:id="@+id/back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#E7DBFB"
+        android:shadowColor="@color/purple_700"
+        android:shadowDx="@dimen/material_emphasis_high_type"
+        android:text="back"
+        android:textColor="#4A307A"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.846"
+        app:rippleColor="@color/purple_200" />
+
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="40dp"
+        android:padding="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.453"
-        tools:layout_editor_absoluteX="0dp">
+        app:layout_constraintVertical_bias="0.453">
 
         <Button
             android:id="@+id/qrPicture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/purple_200"
             android:padding="15dp"
-            android:text="Take picture of QR code"/>
+            android:text="Take picture of QR code"
+            android:textAlignment="center" />
 
         <Space
             android:layout_width="match_parent"
             android:layout_height="50dp" />
 
         <TextView
-            android:id="@+id/textview_first"
-            android:layout_width="wrap_content"
+            android:id="@+id/OTP"
+            android:layout_width="357dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Take picture of the QR code generated in web application or paste secret received via email below" />
+            android:text="Take picture of the QR code generated in web application or enter the secret received via email below"
+            android:textColor="#605F5F"
+            android:textStyle="bold" />
 
         <Space
             android:layout_width="match_parent"
             android:layout_height="30dp" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/secretTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:backgroundTint="@color/purple_200"
             android:ems="10"
             android:hint="Write your secret here"
             android:inputType="textPersonName"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textColor="@color/grey"
+            android:textColorHint="@color/grey" />
 
         <Space
             android:layout_width="match_parent"
@@ -57,6 +85,7 @@
             android:id="@+id/submit_secret"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/purple_200"
             android:text="@string/next" />
 
     </LinearLayout>
