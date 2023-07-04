@@ -43,6 +43,17 @@ public class KeystoreUtil {
 
     }
 
+    public static Boolean isUserRegistered(){
+        try{
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            return keyStore.containsAlias(KEY_ALIAS);
+        } catch (Exception e){
+            return false;
+        }
+
+    }
+
 
     public static String getKey(Context context) throws Exception {
         String secret = getEncryptedSecret(context);

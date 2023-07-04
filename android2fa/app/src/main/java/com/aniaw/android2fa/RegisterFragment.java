@@ -60,6 +60,8 @@ public class RegisterFragment extends Fragment {
             Toast.makeText(getContext()," Couldn't save secret. Please try again.", Toast.LENGTH_SHORT).show();
         }
 
+        back(view);
+
     }
 
     private void setupQRCodeLauncher() {
