@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FDFDFD"
+    android:screenOrientation="portrait"
+    tools:replace="android:screenOrientation"
+    android:stateNotNeeded="true"
     android:backgroundTint="@color/white"
     tools:context=".RegisterFragment">
 

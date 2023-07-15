@@ -1,17 +1,16 @@
 package com.ania.auth.util;
 
-import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import org.jboss.aerogear.security.otp.Totp;
+import org.jboss.aerogear.security.otp.api.Base32;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 public final class TotpUtils {
 
-    private static final GoogleAuthenticator gAuth = new GoogleAuthenticator();
-
     public static void validateTotp(String secretKey, Integer otp) {
-        boolean isCodeValid = gAuth.authorize(secretKey, otp);
+        Totp totp = new Totp(secretKey);
+
+        boolean isCodeValid = totp.verify(otp.toString());
 
         if (!isCodeValid) {
             SecurityContextHolder.clearContext();
@@ -19,12 +18,7 @@ public final class TotpUtils {
         }
     }
 
-    public static Integer getTotpPassword(String secretKey) {
-        return gAuth.getTotpPassword(secretKey);
-    }
-
-    public static String getKey() {
-        final GoogleAuthenticatorKey key = gAuth.createCredentials();
-        return key.getKey();
+    public static String generateSecret() {
+        return Base32.random();
     }
 }

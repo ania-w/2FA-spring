@@ -3,6 +3,7 @@ package com.aniaw.android2fa;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,21 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.aniaw.android2fa.databinding.FragmentRegisterBinding;
+import com.aniaw.android2fa.model.AuthAlias;
+import com.aniaw.android2fa.model.RegisterData;
 import com.aniaw.android2fa.util.KeystoreUtil;
+import com.google.gson.Gson;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanIntentResult;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.nio.charset.StandardCharsets;
+
 public class RegisterFragment extends Fragment {
 
     private FragmentRegisterBinding binding;
+
+    private final Gson gson = new Gson();
 
     private ActivityResultLauncher<Intent> qrCodeScanLauncher;
 
@@ -52,13 +60,23 @@ public class RegisterFragment extends Fragment {
 
     public void saveSecretViaTextView(View view) {
 
-        try{
-            KeystoreUtil.saveKey(getContext(),binding.secretTextView.getText().toString());
-            String s = KeystoreUtil.getKey(getContext());
-            System.out.println("key: "+s);
-        } catch (Exception e){
+    try{
+        String content = binding.secretTextView.getText().toString();
+
+        byte[] decoded = Base64.decode(content, Base64.DEFAULT);
+
+        String userAuthDataString = new String(decoded, StandardCharsets.UTF_8);
+
+        RegisterData registerData = gson.fromJson(userAuthDataString, RegisterData.class);
+
+        KeystoreUtil.saveUsername(this.getContext(), registerData.getUsername());
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getTotpSecret(), AuthAlias.OTP_ALIAS);
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getRsaSecret(), AuthAlias.DEVICE_ID_ALIAS);
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getDeviceId(), AuthAlias.RSA_SECRET_ALIAS);
+
+    } catch (Exception e){
             Toast.makeText(getContext()," Couldn't save secret. Please try again.", Toast.LENGTH_SHORT).show();
-        }
+    }
 
         back(view);
 
@@ -94,7 +112,7 @@ public class RegisterFragment extends Fragment {
 
     public void back(View v) {
         NavHostFragment.findNavController(RegisterFragment.this)
-                .navigate(R.id.action_registerFragment_to_FirstFragment);
+                .navigate(R.id.action_registerFragment_to_loginFragment);
     }
 
     private void processQRCodeScanResult(Intent data) throws Exception {
@@ -102,15 +120,19 @@ public class RegisterFragment extends Fragment {
         ScanContract scanContract=new ScanContract();
         ScanIntentResult result = scanContract.parseResult(Activity.RESULT_OK, data);
 
-        String secret = result.getContents();
-        KeystoreUtil.saveKey(this.getContext(),secret);
+        String qrCodeContent = result.getContents();
+
+        RegisterData registerData = gson.fromJson(qrCodeContent, RegisterData.class);
+        KeystoreUtil.saveUsername(this.getContext(), registerData.getUsername());
+
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getTotpSecret(), AuthAlias.OTP_ALIAS);
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getRsaSecret(), AuthAlias.RSA_SECRET_ALIAS);
+        KeystoreUtil.setKeyStoreSecret(this.getContext(),registerData.getDeviceId(), AuthAlias.DEVICE_ID_ALIAS);
+
         NavHostFragment.findNavController(RegisterFragment.this)
-                .navigate(R.id.action_registerFragment_to_FirstFragment);
+                .navigate(R.id.action_registerFragment_to_loginFragment);
+
         Toast.makeText(super.getContext(),"Secret saved successfully", Toast.LENGTH_SHORT).show();
-        String s = KeystoreUtil.getKey(getContext());
-        System.out.println("key: "+s);
-
     }
-
 
 }

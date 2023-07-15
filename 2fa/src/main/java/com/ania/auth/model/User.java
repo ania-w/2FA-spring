@@ -1,16 +1,14 @@
 package com.ania.auth.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.Date;
 
 @Data
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
@@ -27,15 +25,26 @@ public class User {
 
     private String password;
 
-    private String secret;
+    private String totpSecret;
+
+    private String deviceId;
+
+    @Lob
+    private String rsaPrivateKey;
 
     private Boolean twoFactorEnabled;
 
-    public User(String username, String password, String email, String secret, Boolean twoFactorEnabled) {
+    private Date lastBiometricAuthSuccess;
+
+    public User(String email, String username, String password, String totpSecret, String deviceId, String rsaPrivateKey,
+                Boolean twoFactorEnabled, Date lastBiometricAuthSuccess) {
         this.email = email;
         this.username = username;
         this.password = password;
-        this.secret = secret;
+        this.totpSecret = totpSecret;
+        this.deviceId = deviceId;
+        this.rsaPrivateKey = rsaPrivateKey;
         this.twoFactorEnabled = twoFactorEnabled;
+        this.lastBiometricAuthSuccess = lastBiometricAuthSuccess;
     }
 }

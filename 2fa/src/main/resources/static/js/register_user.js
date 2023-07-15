@@ -1,12 +1,13 @@
 $(document).ready(function() {
 
  $('#sendEmail').click(function(event) {
-    var email = document.getElementById("email").value;
-    var username = document.getElementById("username").value;
+     var qrCodeSrc = $('#qrCodeImage').attr('src');
+     var qrCodeData = qrCodeSrc.replace('data:image/png;base64,', '');
+     var email = document.getElementById("email").value;
 
     const formData = new FormData();
+    formData.append("qrCodeData", qrCodeData);
     formData.append("email", email);
-    formData.append("username", username);
 
     $.ajax({
                 url: '/api/auth/send-email',

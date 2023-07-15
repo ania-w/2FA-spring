@@ -1,15 +1,17 @@
 package com.aniaw.android2fa.util;
 
+import static com.aniaw.android2fa.model.AuthAlias.*;
+
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
+import com.aniaw.android2fa.model.AuthAlias;
+
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -18,19 +20,36 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
 public class KeystoreUtil {
-    private static final String KEY_ALIAS = "totp_secret";
+
     private static final String PREFERENCES = "shared_preferences";
-    private static final String IV_ALIAS = "IV";
     private static final String CHARSET_NAME = StandardCharsets.UTF_8.name();
 
-    public static void saveKey(Context context, String secret) throws Exception {
+    public static void saveUsername(Context context,String username){
+        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit().putString("USERNAME", username).apply();
+    }
+
+    public static String getUsername(Context context){
+        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString("USERNAME", "");
+    }
+
+    public static void setKeyStoreSecret(Context context, String secret, AuthAlias alias) throws Exception {
+        saveKey(context,secret,alias);
+    }
+
+    private static SecretKey getKeystoreSecret(AuthAlias alias) throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        return (SecretKey) keyStore.getKey(alias.name(), null);
+    }
+
+    private static void saveKey(Context context, String secret, AuthAlias alias) throws Exception {
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
         keyStore.load(null);
 
-        if (!keyStore.containsAlias(KEY_ALIAS)) {
+        if (!keyStore.containsAlias(alias.name())) {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
             keyGenerator.init(new KeyGenParameterSpec.Builder(
-                    KEY_ALIAS,
+                    alias.name(),
                     KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
@@ -38,8 +57,8 @@ public class KeystoreUtil {
             keyGenerator.generateKey();
         }
 
-        String encryptedSecret = encrypt(context, secret);
-        saveEncryptedSecret(context,encryptedSecret);
+        String encryptedSecret = encrypt(context, secret, alias);
+        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit().putString(alias.name(), encryptedSecret).apply();
 
     }
 
@@ -47,17 +66,15 @@ public class KeystoreUtil {
         try{
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
-            return keyStore.containsAlias(KEY_ALIAS);
+            return keyStore.containsAlias(OTP_ALIAS.name());
         } catch (Exception e){
             return false;
         }
-
     }
 
-
-    public static String getKey(Context context) throws Exception {
-        String secret = getEncryptedSecret(context);
-        return decrypt(context,secret);
+    public static String getSecret(Context context, AuthAlias alias) throws Exception {
+        String secret = getEncryptedSecret(context, alias);
+        return decrypt(context,secret, alias);
     }
 
     private static Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
@@ -67,39 +84,36 @@ public class KeystoreUtil {
     }
 
 
-    private static void saveEncryptedSecret(Context context, String encryptedSecret) {
-        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit().putString(KEY_ALIAS, encryptedSecret).apply();
+    private static String getEncryptedSecret(Context context, AuthAlias alias) {
+        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString(alias.name(), "");
     }
 
-    private static String getEncryptedSecret(Context context) {
-        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString(KEY_ALIAS, "");
-    }
-
-    private static String encrypt(Context context, String secret) throws Exception {
+    private static String encrypt(Context context, String secret, AuthAlias alias) throws Exception {
         Cipher cipher = getCipher();
-        cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(), cipher.getParameters());
+        cipher.init(Cipher.ENCRYPT_MODE, getKeystoreSecret(alias), cipher.getParameters());
         byte[] iv = cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
         String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
-                .putString(IV_ALIAS, ivString).apply();
+                .putString(IV_ALIAS.name()+"."+alias, ivString).apply();
+
         byte[] encryptedData = cipher.doFinal(secret.getBytes(CHARSET_NAME));
-        return Base64.encodeToString(encryptedData, Base64.DEFAULT);
+        String base64 =  Base64.encodeToString(encryptedData, Base64.DEFAULT);
+        return base64;
     }
 
-    private static String decrypt(Context context, String encryptedSecret) throws Exception {
+    private static String decrypt(Context context, String encryptedSecret, AuthAlias alias) throws Exception {
         Cipher cipher = getCipher();
-        String ivString = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString(IV_ALIAS, "");
+        String ivString = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getString(IV_ALIAS.name()+"."+alias, "");
         byte[] iv = Base64.decode(ivString, Base64.DEFAULT);
-        cipher.init(Cipher.DECRYPT_MODE, getSecretKey(), new IvParameterSpec(iv));
+        cipher.init(Cipher.DECRYPT_MODE, getKeystoreSecret(alias), new IvParameterSpec(iv));
         byte[] encryptedData = Base64.decode(encryptedSecret, Base64.DEFAULT);
-        byte[] decryptedData = cipher.doFinal(encryptedData);
-        return new String(decryptedData, CHARSET_NAME);
-    }
+        String encrypted =  new String(encryptedData, CHARSET_NAME);
 
-    private static SecretKey getSecretKey() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
-        keyStore.load(null);
-        return (SecretKey) keyStore.getKey(KEY_ALIAS, null);
+        byte[] decryptedData = cipher.doFinal(encryptedData);
+
+        String decrypted =  new String(decryptedData, CHARSET_NAME);
+
+        return decrypted;
     }
 
 }

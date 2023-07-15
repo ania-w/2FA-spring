@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService{
+
     @Autowired
     UserRepository userRepository;
 
@@ -43,6 +44,10 @@ public class UserService implements UserDetailsService{
         if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new RuntimeException("Username already taken");
         }
+        userRepository.save(user);
+    }
+
+    public void update(User user) {
         userRepository.save(user);
     }
 }

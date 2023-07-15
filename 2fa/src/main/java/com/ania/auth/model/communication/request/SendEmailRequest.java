@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class SendEmailRequest {
 
-    private String username;
+    private byte[] qrCodeData;
 
     private String email;
 

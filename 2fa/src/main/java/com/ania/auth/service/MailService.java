@@ -3,14 +3,16 @@ package com.ania.auth.service;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Component
+@Service
 public class MailService {
 
     @Value("${ania.app.email}")
@@ -19,12 +21,12 @@ public class MailService {
     @Value("${ania.app.password}")
     private String senderPassword;
 
-    public void sendSecretViaEmail(String recipientEmail, String secret){
+    public void sendAuthDataViaEmail(String email, String user2faData) {
 
         String subject = "Authentication setup";
-        String body = "Your secret is: " + secret;
+        String body = "Your authentication data string is: \n\n" + Base64.encodeBase64String(user2faData.getBytes(StandardCharsets.UTF_8));
 
-        sendEmail(recipientEmail, subject, body);
+        sendEmail(email, subject, body);
     }
 
     private void sendEmail(String recipientEmail, String subject, String body) {

@@ -18,7 +18,6 @@ public class AppController {
     @Autowired
     JwtUtils jwtUtils;
 
-
     @GetMapping("/index")
     public String index(Model model, HttpServletRequest request) {
 

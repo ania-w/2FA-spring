@@ -3,6 +3,7 @@ package com.ania.auth.service;
 import com.ania.auth.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @AllArgsConstructor
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
@@ -21,7 +23,11 @@ public class UserDetailsImpl implements UserDetails {
 
     private String email;
 
-    private String secret;
+    private String totpSecret;
+
+    private String deviceId;
+
+    private String rsaPrivateKey;
 
     private Boolean twoFactorEnabled;
 
@@ -32,14 +38,13 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUsername(),
                 user.getPassword(),
                 user.getEmail(),
-                user.getSecret(),
+                user.getTotpSecret(),
+                user.getDeviceId(),
+                user.getRsaPrivateKey(),
                 user.getTwoFactorEnabled());
     }
 
 
-    public Long getId() {
-        return id;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,18 +79,6 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public Boolean getTwoFactorEnabled() {
-        return twoFactorEnabled;
     }
 
     @Override

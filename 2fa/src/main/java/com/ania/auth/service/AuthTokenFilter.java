@@ -29,10 +29,10 @@ import java.util.Optional;
 public class AuthTokenFilter extends GenericFilterBean {
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    JwtUtils jwtUtils;
 
 
     @Override

@@ -10,6 +10,7 @@ import com.ania.auth.model.communication.request.SendEmailRequest;
 import com.ania.auth.model.communication.response.CreateAccountResponse;
 import com.ania.auth.service.MailService;
 import com.ania.auth.service.UserService;
+import com.ania.auth.util.AuthUtils;
 import com.ania.auth.util.JwtUtils;
 import com.ania.auth.util.TotpUtils;
 import jakarta.servlet.http.Cookie;
@@ -35,7 +36,7 @@ import static com.ania.auth.util.QrCodeUtil.generateQR;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class AuthController {
+public class LoginController {
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -44,19 +45,16 @@ public class AuthController {
     UserService userService;
 
     @Autowired
-    PasswordEncoder encoder;
+    AuthUtils authUtils;
 
     @Autowired
     JwtUtils jwtUtils;
-
-    @Autowired
-    MailService mailService;
 
 
     @GetMapping("/login")
     public ModelAndView loginViewPage (HttpServletResponse response,@RequestParam(required = false) String message) throws IOException {
 
-        redirectIfUserAlreadyLoggedIn(response);
+        authUtils.redirectIfUserAlreadyLoggedIn(response);
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
@@ -65,41 +63,12 @@ public class AuthController {
         return modelAndView;
     }
 
-    @GetMapping("/get-otp")
-    public Integer otp(String secretKey) {
-        return TotpUtils.getTotpPassword(secretKey);
-    }
-
     @GetMapping("/get-users")
     public void users(String secret) {
         userService.printAllUsers();
     }
 
-    private Boolean redirectIfUserAlreadyLoggedIn(HttpServletResponse response) throws IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null && authentication.isAuthenticated()) {
-            response.sendRedirect("/api/content/index");
-            return true;
-        }
-        return false;
-    }
 
-    private Boolean redirectIfNotAuthorized(HttpServletRequest request, HttpServletResponse response, Roles role) throws IOException {
-
-        if(jwtUtils.isJwtTokenPresent(request)) {
-
-            String jwtToken = jwtUtils.getJwtTokenFromRequest(request);
-            if (!jwtUtils.validateJwtToken(jwtToken) || !jwtUtils.hasRole(jwtToken,role)) {
-                response.sendRedirect("/api/auth/login");
-                return true;
-            }
-
-        } else {
-            response.sendRedirect("/api/auth/login");
-            return true;
-        }
-        return false;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<?> firstFactorAuthentication(@Valid @RequestBody CredentialsAuthRequest request) {
@@ -119,7 +88,7 @@ public class AuthController {
     @GetMapping("/second-factor")
     public ModelAndView secondFactorAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        if(!redirectIfUserAlreadyLoggedIn(response) && !redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
+        if(!authUtils.redirectIfUserAlreadyLoggedIn(response) && !authUtils.redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
 
             String username = jwtUtils.getUserNameFromJwtToken(request);
             Boolean is2faEnabled = userService.findUserByUsername(username).getTwoFactorEnabled();
@@ -144,11 +113,11 @@ public class AuthController {
     @PostMapping("/otp")
     private ResponseEntity<?> authenticateWithOTP(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody OtpRequest otpRequest) throws IOException {
 
-        if(!redirectIfUserAlreadyLoggedIn(response) && !redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
+        if(!authUtils.redirectIfUserAlreadyLoggedIn(response) && !authUtils.redirectIfNotAuthorized(request, response, Roles.PRE_AUTHENTICATED)) {
 
             String username = jwtUtils.getUserNameFromJwtToken(request);
 
-            String secret = userService.findUserByUsername(username).getSecret();
+            String secret = userService.findUserByUsername(username).getTotpSecret();
 
             TotpUtils.validateTotp(secret, otpRequest.getOtp());
 
@@ -164,7 +133,7 @@ public class AuthController {
     @GetMapping("/register-user")
     public ModelAndView registerUserViewPage (HttpServletResponse response) throws IOException {
 
-        redirectIfUserAlreadyLoggedIn(response); // TODO: maybe logout?
+        authUtils.redirectIfUserAlreadyLoggedIn(response); // TODO: maybe logout?
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("register_user");
@@ -172,40 +141,6 @@ public class AuthController {
         return modelAndView;
     }
 
-    @PostMapping("/send-email")
-    public ResponseEntity<?> sendEmail(@Valid @RequestBody SendEmailRequest sendEmailRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(!redirectIfNotAuthorized(request, response, Roles.PRE_REGISTERED)) {
-            mailService.sendSecretViaEmail(sendEmailRequest.getEmail(), userService.findUserByUsername(sendEmailRequest.getUsername()).getSecret());
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/register-user")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody CreateAccountRequest request) throws Exception {
-
-        String secret = null;
-        ResponseEntity<?> response = null;
-
-        secret = TotpUtils.getKey();
-        JwtToken jwtToken = jwtUtils.generateTempJwtToken(request.getUsername(), Roles.PRE_REGISTERED);
-        ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
-        response = ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(new CreateAccountResponse(generateQR(secret)));
-
-        User user = new User(request.getUsername(), encoder.encode(request.getPassword()), request.getEmail(), secret, false);
-
-        userService.save(user);
-
-        return response;
-    }
-
-    @PostMapping("/enable-2fa")
-    public void enable2Fa(@Valid @RequestBody CreateAccountRequest accountRequest,HttpServletResponse response, HttpServletRequest request) throws Exception {
-        redirectIfNotAuthorized(request, response, Roles.PRE_REGISTERED);
-        User user = userService.findUserByUsername(accountRequest.getUsername());
-        user.setTwoFactorEnabled(true);
-        userService.save(user);
-
-    }
 
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
