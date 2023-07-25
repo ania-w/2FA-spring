@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @Entity
 @NoArgsConstructor
@@ -34,10 +32,10 @@ public class User {
 
     private Boolean twoFactorEnabled;
 
-    private Date lastBiometricAuthSuccess;
+    private String lastBiometricAuthSuccess;
 
     public User(String email, String username, String password, String totpSecret, String deviceId, String rsaPrivateKey,
-                Boolean twoFactorEnabled, Date lastBiometricAuthSuccess) {
+                Boolean twoFactorEnabled, String lastBiometricAuthSuccess) {
         this.email = email;
         this.username = username;
         this.password = password;

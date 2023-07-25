@@ -30,6 +30,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 import static com.ania.auth.util.QrCodeUtil.generateQR;
 
@@ -150,6 +153,31 @@ public class LoginController {
         response.addCookie(cookie);
 
         response.sendRedirect("/api/auth/login");
+    }
+
+    @GetMapping("/auth-biometric")
+    public ResponseEntity validateBiometricAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        JwtToken token = jwtUtils.getJwtFromCookies(request).get();
+
+        User user = userService.findUserByUsername(token.getUsername());
+
+        String date = user.getLastBiometricAuthSuccess();
+        LocalDateTime localDateTime = LocalDateTime.parse(date);
+        Date lastAuthDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        long twoMinutesInMillis = 2 * 60 * 1000;
+        Date twoMinutesEarlier = new Date(token.getExpirationTime().getTime() - twoMinutesInMillis);
+
+        // Check if the current date is between the expiration date and 2 minutes earlier
+        if (lastAuthDate.after(twoMinutesEarlier) && lastAuthDate.before(token.getExpirationTime())) {
+            JwtToken jwtToken = jwtUtils.generateJwtToken(user.getUsername());
+
+            ResponseCookie tokenCookie = jwtUtils.generateJwtCookie(jwtToken);
+
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, tokenCookie.toString()).body(jwtToken.getJwtToken());
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

@@ -36,7 +36,7 @@ public class CommunicationHandler {
 
     private static final String IP = "192.168.1.109:8081";
     private static final String GET_SESSION_ID_ENDPOINT = "/api/auth/android/session";
-    private static final String SEND_AUTH_REQUEST_ENDPOINT = "/api/auth/android/session";
+    private static final String SEND_AUTH_REQUEST_ENDPOINT = "/api/auth/android/authenticate";
 
     private static String createSessionIdRequest(Context context) throws Exception {
 
@@ -61,7 +61,6 @@ public class CommunicationHandler {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("deviceId", deviceId);
         jsonObject.put("sessionId", sessionId);
-        jsonObject.put("authenticationStatus", "success");
 
         String authenticationString = jsonObject.toString();
         String authenticationStringEncrypted = RSAEncryptionHelper.encrypt(context, authenticationString);

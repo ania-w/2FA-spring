@@ -26,7 +26,7 @@ $(document).ready(function() {
   $('#registerForm').submit(function(event) {
     event.preventDefault();
 
-    var message = document.getElementById("error-register");
+    var message = document.getElementById("message");
 
     var username = document.getElementById("username").value;
     var email = document.getElementById("email").value;

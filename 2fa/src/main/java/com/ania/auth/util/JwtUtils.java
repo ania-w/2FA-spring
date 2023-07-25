@@ -43,7 +43,7 @@ public class JwtUtils {
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
 
-        return new JwtToken(jwt, username, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expirationDate));
+        return new JwtToken(jwt, username, expirationDate);
     }
 
     public Boolean hasRole(String jwtToken, Roles role){
@@ -70,7 +70,7 @@ public class JwtUtils {
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
 
-        return new JwtToken(jwt, username, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expirationDate));
+        return new JwtToken(jwt, username,expirationDate);
     }
 
     public Optional<JwtToken> getJwtFromCookies(ServletRequest request) {
@@ -79,7 +79,7 @@ public class JwtUtils {
         if(cookie != null) {
             String jwtToken = cookie.getValue();
             String username = getUserNameFromJwtToken(jwtToken);
-            String expirationDate = getExpirationDateFromJwtToken(jwtToken);
+            Date expirationDate = getExpirationDateFromJwtToken(jwtToken);
 
             return Optional.of(new JwtToken(jwtToken, username, expirationDate));
         }
@@ -110,10 +110,9 @@ public class JwtUtils {
         return cookie;
     }
 
-    public String getExpirationDateFromJwtToken(String jwtToken) {
+    public Date getExpirationDateFromJwtToken(String jwtToken) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwtToken).getBody();
-        Date expirationDate = claims.getExpiration();
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(expirationDate);
+        return claims.getExpiration();
     }
 
     public String getUserNameFromJwtToken(String jwtToken) {

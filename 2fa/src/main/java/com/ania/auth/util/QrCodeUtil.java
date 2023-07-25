@@ -20,12 +20,12 @@ public class QrCodeUtil {
     public static byte[] generateQR(String content) throws Exception {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
+        int size = 330;
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, size, size, hints);
 
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300, hints);
-
-        BufferedImage qrCodeImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < 300; x++) {
-            for (int y = 0; y < 300; y++) {
+        BufferedImage qrCodeImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
                 qrCodeImage.setRGB(x, y, bitMatrix.get(x, y) ? 0x000000 : 0xFFFFFF);
             }
         }
