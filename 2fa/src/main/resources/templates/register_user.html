@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Register User</title>
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/js/register_user.js"></script>
+<meta charset="UTF-8">
+<title>Register User</title>
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/register_user.js"></script>
 </head>
 <body>
-<div class="header-container">
-    <h1>Register User</h1>
-</div>
-<form class = "register-form" id="registerForm">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required><br><br>
+	<div class="header-container">
+		<h1>Register User</h1>
+	</div>
+	<form class="register-form" id="registerForm">
+		<label for="username">Username:</label> <input type="text"
+			id="username" name="username" required><br>
+		<br> <label for="email">Email:</label> <input type="text"
+			id="email" name="email" required><br>
+		<br> <label for="password">Password:</label> <input
+			type="password" id="password" name="password" required><br>
+		<br> <label for="confirmPassword">Confirm Password:</label> <input
+			type="password" id="confirmPassword" name="confirmPassword" required><br>
+		<br> <input type="submit" style="margin-top: 20px;"
+			id="register-submit" value="Create new account" />
+	</form>
 
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email" required><br><br>
+	<div id="qrCodeContainer" style="display: none;" class="qr-container">
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required><br><br>
-
-    <label for="confirmPassword">Confirm Password:</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" required><br><br>
-    <input type="submit" style="margin-top:20px;" id="register-submit" value="Create new account" />
-</form>
-
-<div id="qrCodeContainer" style="display:none;" class="qr-container">
-
-    <label class="auth-label" style="color:green; margin-bottom:20px;">User account created.</label><br/>
-
-    <label class="auth-label" for="qrCodeImage">Scan the QR code with your mobile device or send an email to set up the authentication flow.</label>
-    <img id="qrCodeImage" alt="QR Code" />
-    <div>
-        <input id="sendEmail" type="button" value="Send secret via email">
-    </div>
-    <br/>
-    <div>
-        <label class="auth-label" for="activate2fa">Click the button below after you have scanned QR code or entered it manually.</label>
-        <input id="activate2fa" type="button" value="Activate two-factor authentication">
-    </div>
-</div>
-<br/>
-<div class="error-register" id="message"></div>
+		<label class="auth-label" style="color: green; margin-bottom: 20px;">User
+			account created.</label><br /> <label class="auth-label" for="qrCodeImage">Scan
+			the QR code with your mobile device or send an email to set up the
+			authentication flow.</label> <img id="qrCodeImage" alt="QR Code" />
+		<div>
+			<input id="sendEmail" type="button" value="Send secret via email">
+		</div>
+		<br />
+		<div>
+			<label class="auth-label" for="activate2fa">Click the button
+				below after you have scanned QR code or entered it manually.</label> <input
+				id="activate2fa" type="button"
+				value="Activate account">
+		</div>
+	</div>
+	<br />
+	<div class="error-register" id="message"></div>
 </body>
 </html>

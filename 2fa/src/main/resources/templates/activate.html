@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org">
+<head>
+<title>Log in</title>
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/activate.js"></script>
+</head>
+<body>
+	<div id="qrCodeContainer" style="display: none;" class="qr-container">
+<br /> <label class="auth-label" for="qrCodeImage">Scan
+		the QR code with your mobile device or send an email to set up the
+		authentication flow.</label> <img id="qrCodeImage" alt="QR Code" />
+		<div>
+			<input id="sendEmail" type="button" value="Send secret via email">
+		</div>
+		<br />
+		<div>
+			<label class="auth-label" for="activate2fa">Click the button
+				below after you have scanned QR code or entered it manually.</label> <input
+				id="activate2fa" type="button"
+				value="Activate account">
+		</div>
+	</div>
+	<br />
+</body>
+</html>

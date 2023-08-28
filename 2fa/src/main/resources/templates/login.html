@@ -1,32 +1,54 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Log in</title>
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/js/login.js"></script>
+<title>Log in</title>
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/login.js"></script>
 </head>
 <body>
-<div>
-    <input type="hidden" id="messageParam" th:value='${message}'/>
-    <span class="message" id="message"></span>
-</div>
-<div class="header-container">
-    <h1>Test Application</h1>
-</div>
-<form class="login-form" th:action="@{/api/auth/login}" method="post" id="loginForm">
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="Enter your username"/>
-    </div>
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter your password"/>
-    </div>
-    <input type="submit" value="Log In"/>
-</form>
-<div class="new-account-link-container">
-    <a class="new-account-link" href="/api/auth/register-user">Create new account</a>
-</div>
+	<div>
+		<input type="hidden" id="messageParam" th:value='${message}' /> <span
+			class="message" id="message"></span>
+	</div>
+	<div class="header-container">
+		<h1>Test Application</h1>
+	</div>
+	<form class="login-form" th:action="@{/api/auth/login}" method="post"
+		id="loginForm">
+		<div>
+			<label for="username">Username:</label> <input type="text"
+				id="username" name="username" placeholder="Enter your username" />
+		</div>
+		<div>
+			<label for="password">Password:</label> <input type="password"
+				id="password" name="password" placeholder="Enter your password" />
+		</div>
+		<input type="submit" value="Log In" />
+	</form>
+	<div class="new-account-link-container">
+		<a class="new-account-link" href="/api/auth/register-user">Create
+			new account</a>
+	</div>
+
+	<div id="qrCodeContainer" style="display: none;" class="qr-container">
+
+		<label class="auth-label" style="color: green; margin-bottom: 20px;">User
+			account created.</label><br /> <label class="auth-label" for="qrCodeImage">Scan
+		the QR code with your mobile device or send an email to set up the
+		authentication flow.</label> <img id="qrCodeImage" alt="QR Code" />
+		<div>
+			<input id="sendEmail" type="button" value="Send secret via email">
+		</div>
+		<br />
+		<div>
+			<label class="auth-label" for="activate2fa">Click the button
+				below after you have scanned QR code or entered it manually.</label> <input
+				id="activate2fa" type="button"
+				value="Activate account">
+		</div>
+	</div>
+	<br />
 </body>
 </html>

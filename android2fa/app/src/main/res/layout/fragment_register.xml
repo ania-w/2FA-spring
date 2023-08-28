@@ -4,60 +4,95 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FDFDFD"
+    android:screenOrientation="portrait"
+    tools:replace="android:screenOrientation"
+    android:stateNotNeeded="true"
+    android:backgroundTint="@color/white"
     tools:context=".RegisterFragment">
 
+    <Button
+        android:id="@+id/back"
+        android:layout_width="105dp"
+        android:layout_height="54dp"
+        android:backgroundTint="#E7DBFB"
+        android:shadowColor="@color/purple_700"
+        android:shadowDx="@dimen/material_emphasis_high_type"
+        android:text="back"
+        android:textColor="#4A307A"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.091"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.746"
+        app:rippleColor="@color/purple_200" />
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:layout_width="406dp"
+        android:layout_height="402dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="40dp"
+        android:padding="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.453"
-        tools:layout_editor_absoluteX="0dp">
+        app:layout_constraintVertical_bias="0.453">
 
         <Button
             android:id="@+id/qrPicture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="266dp"
+            android:layout_height="72dp"
+            android:backgroundTint="@color/purple_200"
             android:padding="15dp"
-            android:text="Take picture of QR code"/>
+            android:text="Take a picture of QR code"
+            android:textAlignment="center"
+            android:textSize="14sp" />
 
         <Space
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            android:layout_width="377dp"
+            android:layout_height="38dp" />
 
         <TextView
-            android:id="@+id/textview_first"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/OTP"
+            android:layout_width="336dp"
+            android:layout_height="67dp"
             android:gravity="center"
-            android:text="Take picture of the QR code generated in web application or paste secret received via email below" />
+            android:text="Take picture of the QR code generated in web application or enter the secret received via email below"
+            android:textAlignment="center"
+            android:textColor="@color/purple_200"
+            android:textSize="15sp" />
 
         <Space
-            android:layout_width="match_parent"
-            android:layout_height="30dp" />
+            android:layout_width="372dp"
+            android:layout_height="35dp" />
 
         <EditText
-            android:id="@+id/editTextTextPersonName"
-            android:layout_width="match_parent"
+            android:id="@+id/secretTextView"
+            android:layout_width="335dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:backgroundTint="@color/purple_200"
             android:ems="10"
             android:hint="Write your secret here"
             android:inputType="textPersonName"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textColor="@color/grey"
+            android:textColorHint="@color/grey" />
 
         <Space
-            android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_width="374dp"
+            android:layout_height="33dp" />
 
         <Button
             android:id="@+id/submit_secret"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/next" />
+            android:layout_width="100dp"
+            android:layout_height="62dp"
+            android:backgroundTint="@color/purple_200"
+            android:text="@string/next"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
