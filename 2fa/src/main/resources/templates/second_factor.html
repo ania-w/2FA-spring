@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org">
 <title>OTP Verification</title>
 <head>
-        <title>Log in</title>
-        <link rel="stylesheet" type="text/css" href="/css/style.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="/js/second_factor.js"></script>
+<title>Log in</title>
+<link rel="stylesheet" type="text/css" href="/css/style.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/second_factor.js"></script>
 </head>
 <body>
-<div class="header-container" style="margin-top: 120px;">
-    <h4>Use fingerprint scanner on your mobile device</h4>
-</div>
-<div class="or-container">
-    <h4>or</h4>
-</div>
-<div class="header-container">
-    <h4>Generate OTP and enter it below</h4>
-</div>
-<form class="otp-form" method="post" id="otpForm">
-    <input type="number" id="otp" name="otp" placeholder="Enter your OTP" required>
-<div>
-    <input type="submit" value="Send"/>
-</div>
+	<div class="header-container" style="margin-top: 120px;">
+		<h4>Use fingerprint scanner on your mobile device</h4>
+	</div>
+	<div class="or-container">
+		<h4>or</h4>
+	</div>
+	<div class="header-container">
+		<h4>Generate OTP and enter it below</h4>
+	</div>
+	<form class="otp-form" method="post" id="otpForm">
+		<input type="number" id="otp" name="otp" placeholder="Enter your OTP"
+			required>
+		<div>
+			<input type="submit" value="Send" />
+		</div>
 
-</form>
+	</form>
 </body>
 </html>

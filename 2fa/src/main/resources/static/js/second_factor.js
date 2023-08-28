@@ -15,8 +15,7 @@ function pollServer() {
   xhr.send();
 }
 
-// Poll the server every 5 seconds
-setInterval(pollServer, 3000);
+setInterval(pollServer, 4000);
 
 
   $('#otpForm').submit(function(event) {
@@ -35,7 +34,7 @@ setInterval(pollServer, 3000);
         window.location.href = '/api/content/index';
       },
       error: function() {
-        alert('Invalid OTP');
+              window.location.href = '/api/auth/login?message=' + encodeURIComponent("Invalid OTP.");
       }
     });
   });

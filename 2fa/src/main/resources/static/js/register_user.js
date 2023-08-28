@@ -33,10 +33,33 @@ $(document).ready(function() {
     var password = document.getElementById("password").value;
     var confirmPassword = document.getElementById("confirmPassword").value;
 
+
+   if (username.length < 3) {
+            message.innerHTML = "Minimum username length is 3 characters!";
+            return;
+    }
+
+    if (password.length < 8) {
+          message.innerHTML = "Minimum password length is 8 characters!";
+          return;
+    }
+
     if (password !== confirmPassword) {
         message.innerHTML = "Passwords do not match!";
         return;
     }
+
+
+
+
+   var wzorEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+    if(!wzorEmail.test(email)) {
+            message.innerHTML = "Incorrect email";
+            return;
+    }
+
+    message.innerHTML = "";
 
     const formData = new FormData();
     formData.append("username", username);
@@ -61,7 +84,7 @@ $(document).ready(function() {
               form.append("username", username);
               form.append("email", email);
                 $.ajax({
-                 url: '/api/auth/enable-2fa',
+                 url: '/api/auth/activate',
                  type: 'POST',
                  contentType: 'application/json',
                  data: JSON.stringify(Object.fromEntries(form.entries())),
@@ -70,14 +93,14 @@ $(document).ready(function() {
                         window.location.href = '/api/auth/login?message=' + encodeURIComponent(message);
                         },
                     error: function() {
-                         window.location.href = '/api/auth/login?message=' + encodeURIComponent("Error when activating two factor authentication. Try logging in and activating it manually.");
+                         window.location.href = '/api/auth/login?message=' + encodeURIComponent("Error when activating account. Try logging in and activating it again.");
                     }
                  });
 
              });
           },
-          error: function() {
-            alert('Error when creating new account');
+          error: function(response) {
+            alert('Error when creating new account: '+ response);
           }
         });
 });

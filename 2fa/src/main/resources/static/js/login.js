@@ -22,11 +22,16 @@ console.log(messageParam);
       type: 'POST',
       contentType: 'application/json',
       data: formData,
-      success: function() {
+      success: function(response) {
+      if(response=="activate")
+        window.location.href = '/api/auth/activate';
+      else
         window.location.href = '/api/auth/second-factor';
       },
       error: function() {
-        alert('Login failed');
+        window.location.href = '/api/auth/login'
+                alert('Login failed');
+
       }
     });
   });
